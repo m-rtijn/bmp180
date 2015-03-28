@@ -187,3 +187,9 @@ class BMP180:
         altitude = 44330.0 * (1.0 - math.pow(pressure / seaLevelPressure, 0.00019029495))
 
         return altitude
+
+if __name__ == "__main__":
+    bmp = BMP180(0x77)
+    print(bmp.GetTemp())
+    print(bmp.GetPressure())
+    print(bmp.GetAltitude())
