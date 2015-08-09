@@ -14,21 +14,21 @@ class BMP180:
     mode = 1 # TODO: Add a way to change the mode
 
     # BMP180 registers
-    controlReg = 0xF4
-    dataReg = 0xF6
+    CONTROL_REG = 0xF4
+    DATA_REG = 0xF6
 
     # Calibration data registers
-    calAC1Reg = 0xAA
-    calAC2Reg = 0xAC
-    calAC3Reg = 0xAE
-    calAC4Reg = 0xB0
-    calAC5Reg = 0xB2
-    calAC6Reg = 0xB4
-    calB1Reg = 0xB6
-    calB2Reg = 0xB8
-    calMBReg = 0xBA
-    calMCReg = 0xBC
-    calMDReg = 0xBE
+    CAL_AC1_REG = 0xAA
+    CAL_AC2_REG = 0xAC
+    CAL_AC3_REG = 0xAE
+    CAL_AC4_REG = 0xB0
+    CAL_AC5_REG = 0xB2
+    CAL_AC6_REG = 0xB4
+    CAL_B1_REG = 0xB6
+    CAL_B2_REG = 0xB8
+    CAL_MB_REG = 0xBA
+    CAL_MC_REG = 0xBC
+    CAL_MD_REG = 0xBE
 
     # Calibration data variables
     calAC1 = 0
@@ -48,13 +48,12 @@ class BMP180:
         self.address = address
         
         # Get the calibration data from the BMP180
-        self.ReadCalibrationData()
+        self.read_calibration_data()
 
     # I2C methods
 
     # Reads a 16-bit signed value from the given register and returns it
-    def ReadSigned16Bit(self, register):
-        # Read the raw values from the registers
+    def read_signed_16_bit(self, register):
         high = self.bus.read_byte_data(self.address, register)
         low = self.bus.read_byte_data(self.address, register + 1)
 
@@ -64,8 +63,7 @@ class BMP180:
         return (high << 8) + low
 
     # Reads a 16-bit unsigned value from the given register and returns it
-    def ReadUnsigned16Bit(self, register):
-        # Read the raw values from the registers
+    def read_unsigned_16_bit(self, register):
         high = self.bus.read_byte_data(self.address, register)
         low = self.bus.read_byte_data(self.address, register + 1)
 
@@ -74,73 +72,73 @@ class BMP180:
     # BMP180 interaction methods
 
     # Reads and stores the raw calibration data
-    def ReadCalibrationData(self):
-        self.calAC1 = self.ReadSigned16Bit(self.calAC1Reg)
-        self.calAC2 = self.ReadSigned16Bit(self.calAC2Reg)
-        self.calAC3 = self.ReadSigned16Bit(self.calAC3Reg)
-        self.calAC4 = self.ReadUnsigned16Bit(self.calAC4Reg)
-        self.calAC5 = self.ReadUnsigned16Bit(self.calAC5Reg)
-        self.calAC6 = self.ReadUnsigned16Bit(self.calAC6Reg)
-        self.calB1 = self.ReadSigned16Bit(self.calB1Reg)
-        self.calB2 = self.ReadSigned16Bit(self.calB2Reg)
-        self.calMB = self.ReadSigned16Bit(self.calMBReg)
-        self.calMC = self.ReadSigned16Bit(self.calMCReg)
-        self.calMD = self.ReadSigned16Bit(self.calMDReg)
+    def read_calibration_data(self):
+        self.calAC1 = self.read_signed_16_bit(self.CAL_AC1_REG)
+        self.calAC2 = self.read_signed_16_bit(self.CAL_AC2_REG)
+        self.calAC3 = self.read_signed_16_bit(self.CAL_AC3_REG)
+        self.calAC4 = self.read_unsigned_16_bit(self.CAL_AC4_REG)
+        self.calAC5 = self.read_unsigned_16_bit(self.CAL_AC5_REG)
+        self.calAC6 = self.read_unsigned_16_bit(self.CAL_AC6_REG)
+        self.calB1 = self.read_signed_16_bit(self.CAL_B1_REG)
+        self.calB2 = self.read_signed_16_bit(self.CAL_B2_REG)
+        self.calMB = self.read_signed_16_bit(self.CAL_MB_REG)
+        self.calMC = self.read_signed_16_bit(self.CAL_MC_REG)
+        self.calMD = self.read_signed_16_bit(self.CAL_MD_REG)
 
     # Reads and returns the raw temperature data
-    def GetRawTemp(self):
-        # Write 0x2E to controlReg, 0xF4, to start the measurement
-        self.bus.write_byte_data(self.address, self.controlReg, 0x2E)
+    def get_raw_temp(self):
+        # Write 0x2E to CONTROL_REG to start the measurement
+        self.bus.write_byte_data(self.address, self.CONTROL_REG, 0x2E)
 
         # Wait 4,5 ms
         sleep(0.0045)
 
-        # Read the raw data from the dataReg, 0xF6
-        rawData = self.ReadUnsigned16Bit(self.dataReg)
+        # Read the raw data from the DATA_REG, 0xF6
+        raw_data = self.read_unsigned_16_bit(self.DATA_REG)
 
         # Return the raw data
-        return rawData
+        return raw_data
 
     # Reads and returns the raw pressure data
-    def GetRawPressure(self):
-        # Write 0x43 + (self.mode << 6) to the controlReg, 0xF4, to start the measurement
-        self.bus.write_byte_data(self.address, self.controlReg, 0x34 + (self.mode << 6))
+    def get_raw_pressure(self):
+        # Write 0x43 + (self.mode << 6) to the CONTROL_REG, to start the measurement
+        self.bus.write_byte_data(self.address, self.CONTROL_REG, 0x34 + (self.mode << 6))
 
         # Sleep for 8 ms.
         # TODO: Way to use the correct wait time for the current mode
         sleep(0.008)
 
-        # Read the raw data from the dataReg, 0xF6
-        MSB = self.bus.read_byte_data(self.address, self.dataReg)
-        LSB = self.bus.read_byte_data(self.address, self.dataReg + 1)
-        XLSB = self.bus.read_byte_data(self.address, self.dataReg + 2)
+        # Read the raw data from the DATA_REG, 0xF6
+        MSB = self.bus.read_byte_data(self.address, self.DATA_REG)
+        LSB = self.bus.read_byte_data(self.address, self.DATA_REG + 1)
+        XLSB = self.bus.read_byte_data(self.address, self.DATA_REG + 2)
 
-        rawData = ((MSB << 16) + (LSB << 8) + XLSB) >> (8 - self.mode)
+        raw_data = ((MSB << 16) + (LSB << 8) + XLSB) >> (8 - self.mode)
 
-        return rawData
+        return raw_data
         
 
     # Reads and returns the actual temperature
-    def GetTemp(self):
-        UT = self.GetRawTemp()
+    def get_temp(self):
+        UT = self.get_raw_temp()
 
         X1 = 0
         X2 = 0
         B5 = 0
-        actualTemp = 0.0
+        actual_temp = 0.0
 
         # These calculations are from the BMP180 datasheet, page 15
         X1 = ((UT - self.calAC6) * self.calAC5) / math.pow(2, 15)
         X2 = (self.calMC * math.pow(2, 11)) / (X1 + self.calMD)
         B5 = X1 + X2
-        actualTemp = ((B5 + 8) / math.pow(2, 4)) / 10
+        actual_temp = ((B5 + 8) / math.pow(2, 4)) / 10
 
-        return actualTemp
+        return actual_temp
 
     # Reads and returns the actual pressure in Pa (1 Pa = 1 N/m^2)
-    def GetPressure(self):
-        UP = self.GetRawPressure()
-        UT = self.GetRawTemp()
+    def get_pressure(self):
+        UP = self.get_raw_pressure()
+        UT = self.get_raw_temp()
         B3 = 0
         B4 = 0
         B5 = 0
@@ -180,9 +178,9 @@ class BMP180:
         return pressure
 
     # Gets and returns the altitude in meters 
-    def GetAltitude(self, seaLevelPressure = 101325):
+    def get_altitude(self, seaLevelPressure = 101325):
         altitude = 0.0
-        pressure = float(self.GetPressure())
+        pressure = float(self.get_pressure())
 
         altitude = 44330.0 * (1.0 - math.pow(pressure / seaLevelPressure, 0.00019029495))
 
@@ -190,6 +188,6 @@ class BMP180:
 
 if __name__ == "__main__":
     bmp = BMP180(0x77)
-    print(bmp.GetTemp())
-    print(bmp.GetPressure())
-    print(bmp.GetAltitude())
+    print(bmp.get_temp())
+    print(bmp.get_pressure())
+    print(bmp.get_altitude())
