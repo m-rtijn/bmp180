@@ -8,6 +8,6 @@ from BMP180 import BMP180
 
 bmp = BMP180(0x77)
 
-print("Temp: " + str(bmp.get_temp()))
-print("Pressure: " + str(bmp.get_pressure()))
-print("Altitude: " + str(bmp.get_altitude()))
+print("Temp: " + str(bmp.get_temp()) + " Celcius")
+print("Pressure: " + str(bmp.get_pressure()) + " Pascal")
+print("Altitude: " + str(bmp.get_altitude()) + " meter")
