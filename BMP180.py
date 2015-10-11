@@ -52,8 +52,12 @@ class BMP180:
 
     # I2C methods
 
-    # Reads a 16-bit signed value from the given register and returns it
     def read_signed_16_bit(self, register):
+        """Reads a 16-bit signed value and returns it.
+
+        register -- the register to read from.
+        Returns the read value.
+        """
         high = self.bus.read_byte_data(self.address, register)
         low = self.bus.read_byte_data(self.address, register + 1)
 
@@ -71,8 +75,8 @@ class BMP180:
 
     # BMP180 interaction methods
 
-    # Reads and stores the raw calibration data
     def read_calibration_data(self):
+        """Reads and stores the raw calibration data."""
         self.calAC1 = self.read_signed_16_bit(self.CAL_AC1_REG)
         self.calAC2 = self.read_signed_16_bit(self.CAL_AC2_REG)
         self.calAC3 = self.read_signed_16_bit(self.CAL_AC3_REG)
@@ -85,8 +89,8 @@ class BMP180:
         self.calMC = self.read_signed_16_bit(self.CAL_MC_REG)
         self.calMD = self.read_signed_16_bit(self.CAL_MD_REG)
 
-    # Reads and returns the raw temperature data
     def get_raw_temp(self):
+        """Reads and returns the raw temperature data."""
         # Write 0x2E to CONTROL_REG to start the measurement
         self.bus.write_byte_data(self.address, self.CONTROL_REG, 0x2E)
 
@@ -99,8 +103,8 @@ class BMP180:
         # Return the raw data
         return raw_data
 
-    # Reads and returns the raw pressure data
     def get_raw_pressure(self):
+        """Reads and returns the raw pressure data."""
         # Write 0x43 + (self.mode << 6) to the CONTROL_REG, to start the measurement
         self.bus.write_byte_data(self.address, self.CONTROL_REG, 0x34 + (self.mode << 6))
 
@@ -116,10 +120,14 @@ class BMP180:
         raw_data = ((MSB << 16) + (LSB << 8) + XLSB) >> (8 - self.mode)
 
         return raw_data
-        
 
-    # Reads and returns the actual temperature
     def get_temp(self):
+        """Reads the raw temperature and calculates the actual temperature.
+
+        The calculations used to get the actual temperature are from the BMP-180
+        datasheet.
+        Returns the actual temperature in degrees Celcius.
+        """
         UT = self.get_raw_temp()
 
         X1 = 0
@@ -127,7 +135,6 @@ class BMP180:
         B5 = 0
         actual_temp = 0.0
 
-        # These calculations are from the BMP180 datasheet, page 15
         X1 = ((UT - self.calAC6) * self.calAC5) / math.pow(2, 15)
         X2 = (self.calMC * math.pow(2, 11)) / (X1 + self.calMD)
         B5 = X1 + X2
@@ -135,8 +142,11 @@ class BMP180:
 
         return actual_temp
 
-    # Reads and returns the actual pressure in Pa (1 Pa = 1 N/m^2)
     def get_pressure(self):
+        """Reads and calculates the actual pressure.
+
+        Returns the actual pressure in Pascal.
+        """
         UP = self.get_raw_pressure()
         UT = self.get_raw_temp()
         B3 = 0
@@ -177,12 +187,18 @@ class BMP180:
 
         return pressure
 
-    # Gets and returns the altitude in meters 
-    def get_altitude(self, seaLevelPressure = 101325):
+    def get_altitude(self, sea_level_pressure = 101325):
+        """Calulates the altitude.
+
+        This method calculates the altitude using the pressure.
+        This method is not reliable when the sensor is inside.
+        sea_level_pressure -- the pressure at the sea level closest to you in Pascal.
+        Returns the altitude in meters.
+        """
         altitude = 0.0
         pressure = float(self.get_pressure())
 
-        altitude = 44330.0 * (1.0 - math.pow(pressure / seaLevelPressure, 0.00019029495))
+        altitude = 44330.0 * (1.0 - math.pow(pressure / sea_level_pressure, 0.00019029495))
 
         return altitude
 
