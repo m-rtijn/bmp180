@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
 Released under the MIT License
-Copyright 2015 MrTijn/Tijndagamer
+Copyright 2015-2016 MrTijn/Tijndagamer
 """
 
 from BMP180 import BMP180
