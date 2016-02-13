@@ -196,6 +196,9 @@ class BMP180:
         This method is not reliable when the sensor is inside.
         sea_level_pressure -- the pressure at the sea level closest to you in Pascal.
         Returns the altitude in meters.
+
+        !!! This method probably does not work correctly. I've tried to test it but
+        at the moment I have no way of verifying the data. !!!
         """
         altitude = 0.0
         pressure = float(self.get_pressure())
