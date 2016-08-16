@@ -1,13 +1,15 @@
-# This program handles the communication over I2C
-# between a Raspberry Pi and a BMP180 Temperature/Pressure sensor
-# Made by: MrTijn/Tijndagamer
-# Copyright 2015
+"""
+This program handles the communication over I2C
+between a Raspberry Pi and a BMP180 Temperature/Pressure sensor
+Made by: MrTijn/Tijndagamer
+Copyright 2015-2016
+"""
 
 import smbus
 import math
 from time import sleep
 
-class BMP180:
+class bmp180:
     # Global variables
     address = None
     bus = smbus.SMBus(1)
@@ -46,7 +48,7 @@ class BMP180:
 
     def __init__(self, address):
         self.address = address
-        
+
         # Get the calibration data from the BMP180
         self.read_calibration_data()
 
@@ -63,7 +65,7 @@ class BMP180:
 
         if high > 127:
             high -= 256
-        
+
         return (high << 8) + low
 
     # Reads a 16-bit unsigned value from the given register and returns it
@@ -174,7 +176,7 @@ class BMP180:
         X3 = ((X1 + X2) + 2) / math.pow(2, 2)
         B4 = self.calAC4 * (X3 + 32768) / math.pow(2,15)
         B7 = (UP - B3) * (50000 >> self.mode)
-        
+
         if B7 < 0x80000000:
             pressure = (B7 * 2) / B4
         else:
@@ -206,7 +208,7 @@ class BMP180:
         return altitude
 
 if __name__ == "__main__":
-    bmp = BMP180(0x77)
+    bmp = bmp180(0x77)
     print(bmp.get_temp())
     print(bmp.get_pressure())
     print(bmp.get_altitude())

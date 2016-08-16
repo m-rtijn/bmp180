@@ -1,12 +1,12 @@
 #!/usr/bin/python
 """
 Released under the MIT License
-Copyright 2015 MrTijn/Tijndagamer
+Copyright 2015-2016 MrTijn/Tijndagamer
 """
 
-from BMP180 import BMP180
+from bmp180 import bmp180
 
-bmp = BMP180(0x77)
+bmp = bmp180(0x77)
 
 print("Temp: " + str(bmp.get_temp()) + " Celcius")
 print("Pressure: " + str(bmp.get_pressure()) + " Pascal")
