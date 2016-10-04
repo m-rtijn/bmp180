@@ -1,8 +1,9 @@
 """
-This program handles the communication over I2C
-between a Raspberry Pi and a BMP180 Temperature/Pressure sensor
+This program handles the communication over I2C between a Raspberry Pi and a
+BMP180 Temperature/Pressure sensor.
 Made by: MrTijn/Tijndagamer
 Copyright 2015-2016
+Released under the MIT license.
 """
 
 import smbus
@@ -55,25 +56,31 @@ class bmp180:
     # I2C methods
 
     def read_signed_16_bit(self, register):
-        """Reads a 16-bit signed value and returns it.
+        """Reads a signed 16-bit value.
 
         register -- the register to read from.
         Returns the read value.
         """
-        high = self.bus.read_byte_data(self.address, register)
-        low = self.bus.read_byte_data(self.address, register + 1)
+        msb = self.bus.read_byte_data(self.address, register)
+        lsb = self.bus.read_byte_data(self.address, register + 1)
 
-        if high > 127:
-            high -= 256
+        if msb > 127:
+            msb -= 256
 
-        return (high << 8) + low
+        return (msb << 8) + lsb
 
-    # Reads a 16-bit unsigned value from the given register and returns it
     def read_unsigned_16_bit(self, register):
-        high = self.bus.read_byte_data(self.address, register)
-        low = self.bus.read_byte_data(self.address, register + 1)
+        """Reads an unsigned 16-bit value.
 
-        return (high << 8) + low
+        Reads the given register and the following, and combines them as an
+        unsigned 16-bit value.
+        register -- the register to read from.
+        Returns the read value.
+        """
+        msb = self.bus.read_byte_data(self.address, register)
+        lsb = self.bus.read_byte_data(self.address, register + 1)
+
+        return (msb << 8) + lsb
 
     # BMP180 interaction methods
 
