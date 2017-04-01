@@ -2,7 +2,7 @@
 This program handles the communication over I2C between a Raspberry Pi and a
 BMP180 Temperature/Pressure sensor.
 Made by: MrTijn/Tijndagamer
-Copyright 2015-2016
+Copyright 2015-2017
 Released under the MIT license.
 """
 
@@ -114,14 +114,13 @@ class bmp180:
 
     def get_raw_pressure(self):
         """Reads and returns the raw pressure data."""
-        # Write 0x43 + (self.mode << 6) to the CONTROL_REG, to start the measurement
+        # Write appropriate data to sensor to start the measurement
         self.bus.write_byte_data(self.address, self.CONTROL_REG, 0x34 + (self.mode << 6))
 
         # Sleep for 8 ms.
         # TODO: Way to use the correct wait time for the current mode
         sleep(0.008)
 
-        # Read the raw data from the DATA_REG, 0xF6
         MSB = self.bus.read_byte_data(self.address, self.DATA_REG)
         LSB = self.bus.read_byte_data(self.address, self.DATA_REG + 1)
         XLSB = self.bus.read_byte_data(self.address, self.DATA_REG + 2)
@@ -169,10 +168,14 @@ class bmp180:
         pressure = 0
 
         # These calculations are from the BMP180 datasheet, page 15
+
+        # Not sure if these calculations should be here, maybe they could be
+        # removed?
         X1 = ((UT - self.calAC6) * self.calAC5) / math.pow(2, 15)
         X2 = (self.calMC * math.pow(2, 11)) / (X1 + self.calMD)
         B5 = X1 + X2
 
+        # Todo: change math.pow cals to constants
         B6 = B5 - 4000
         X1 = (self.calB2 * (B6 * B6 / math.pow(2, 12))) / math.pow(2, 11)
         X2 = self.calAC2 * B6 / math.pow(2, 11)
@@ -192,7 +195,7 @@ class bmp180:
         X1 = (pressure / math.pow(2, 8)) * (pressure / math.pow(2, 8))
         X1 = (X1 * 3038) / math.pow(2, 16)
         X2 = (-7357 * pressure) / math.pow(2, 16)
-        pressure = pressure + (X1 + X1 + 3791) / math.pow(2, 4)
+        pressure = pressure + (X1 + X2 + 3791) / math.pow(2, 4)
 
         return pressure
 
@@ -201,11 +204,12 @@ class bmp180:
 
         This method calculates the altitude using the pressure.
         This method is not reliable when the sensor is inside.
-        sea_level_pressure -- the pressure at the sea level closest to you in Pascal.
+        sea_level_pressure -- the pressure at the sea level closest to you in
+        Pascal.
         Returns the altitude in meters.
 
-        !!! This method probably does not work correctly. I've tried to test it but
-        at the moment I have no way of verifying the data. !!!
+        !!! This method probably does not work correctly. I've tried to test
+        it but at the moment I have no way of verifying the data. !!!
         """
         altitude = 0.0
         pressure = float(self.get_pressure())
