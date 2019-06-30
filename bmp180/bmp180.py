@@ -211,10 +211,11 @@ class bmp180:
         !!! This method probably does not work correctly. I've tried to test
         it but at the moment I have no way of verifying the data. !!!
         """
+        c_temp = self.get_temp()
         altitude = 0.0
         pressure = float(self.get_pressure())
 
-        altitude = 44330.0 * (1.0 - math.pow(pressure / sea_level_pressure, 0.00019029495))
+        altitude = (math.pow(sea_level_pressure / pressure, 1/5.257) - 1) * (c_temp +273.15)/ 0.0065
 
         return altitude
 
