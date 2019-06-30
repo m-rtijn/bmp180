@@ -199,7 +199,7 @@ class bmp180:
 
         return pressure
 
-    def get_altitude(self, sea_level_pressure = 101325):
+    def get_altitude(self, sea_level_pressure = 101625, current_temperature = None):
         """Calulates the altitude.
 
         This method calculates the altitude using the pressure.
@@ -211,10 +211,14 @@ class bmp180:
         !!! This method probably does not work correctly. I've tried to test
         it but at the moment I have no way of verifying the data. !!!
         """
+        if current_temperature is None:
+            c_temp = self.get_temp()
+        else:
+            c_temp = 20.0
         altitude = 0.0
         pressure = float(self.get_pressure())
 
-        altitude = 44330.0 * (1.0 - math.pow(pressure / sea_level_pressure, 0.00019029495))
+        altitude = (math.pow(sea_level_pressure / pressure, 1/5.257) - 1) * (c_temp +273.15)/ 0.0065
 
         return altitude
 
