@@ -4,6 +4,10 @@ BMP180 Temperature/Pressure sensor.
 Made by: MrTijn/Tijndagamer
 Copyright 2015-2017
 Released under the MIT license.
+
+Fork by Pavel Katurov (katurov)
+Changes:
+    * added possibility to use with different bus
 """
 
 import smbus
@@ -13,7 +17,7 @@ from time import sleep
 class bmp180:
     # Global variables
     address = None
-    bus = smbus.SMBus(1)
+    bus = None             # smbus.SMBus(1)
     mode = 1 # TODO: Add a way to change the mode
 
     # BMP180 registers
@@ -47,7 +51,13 @@ class bmp180:
     calMD = 0
 
 
-    def __init__(self, address):
+    def __init__(self, address, i_bus = None):
+
+        if i_bus is not None :
+            self.bus = i_bus
+        else :
+            self.bus = smbus.SMBus(1)
+        
         self.address = address
 
         # Get the calibration data from the BMP180
@@ -219,7 +229,15 @@ class bmp180:
         return altitude
 
 if __name__ == "__main__":
-    bmp = bmp180(0x77)
+
+    # Call with NO defined bus
+    #
+    #bmp = bmp180(0x77)
+
+    # Call with predefined bus as second HDMI port on Raspberry Pi4
+    #
+    bmp = bmp180(0x77, smbus.SMBus(21))
+    
     print(bmp.get_temp())
     print(bmp.get_pressure())
     print(bmp.get_altitude())
