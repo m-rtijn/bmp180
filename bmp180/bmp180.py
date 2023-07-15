@@ -7,17 +7,21 @@ Released under the MIT license.
 
 Fork by Pavel Katurov (katurov)
 Changes:
+    * shecked is smbus2 is available - use it
     * added possibility to use with different bus
 """
 
-import smbus
+try :
+    from smbus2 import SMBus
+except :
+    from smbus import SMBus
 import math
 from time import sleep
 
 class bmp180:
     # Global variables
     address = None
-    bus = None             # smbus.SMBus(1)
+    bus = None
     mode = 1 # TODO: Add a way to change the mode
 
     # BMP180 registers
@@ -56,7 +60,7 @@ class bmp180:
         if i_bus is not None :
             self.bus = i_bus
         else :
-            self.bus = smbus.SMBus(1)
+            self.bus = SMBus(1)
         
         self.address = address
 
@@ -236,7 +240,7 @@ if __name__ == "__main__":
 
     # Call with predefined bus as second HDMI port on Raspberry Pi4
     #
-    bmp = bmp180(0x77, smbus.SMBus(21))
+    bmp = bmp180(0x77, SMBus(21))
     
     print(bmp.get_temp())
     print(bmp.get_pressure())
