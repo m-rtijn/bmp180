@@ -11,7 +11,7 @@ Changes:
     * added possibility to use with different bus
 """
 
-try :
+try:
     from smbus2 import SMBus
 except:
     from smbus import SMBus
