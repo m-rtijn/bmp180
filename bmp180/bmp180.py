@@ -4,11 +4,10 @@ BMP180 Temperature/Pressure sensor.
 Made by: MrTijn/Tijndagamer
 Copyright 2015-2017
 Released under the MIT license.
-
-Fork by Pavel Katurov (katurov)
-Changes:
-    * shecked is smbus2 is available - use it
-    * added possibility to use with different bus
+Copyright 2023 Pavel Katurov (katurov) regarding:
+    Changes:
+        * Use smbus2 if it is available, otherwise fall back to smbus
+        * added possibility to specify a specific i2c bus
 """
 
 try:
