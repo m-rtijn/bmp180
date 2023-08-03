@@ -57,7 +57,7 @@ class bmp180:
 
     def __init__(self, address, i_bus = None):
 
-        if i_bus is not None :
+        if i_bus is not None:
             self.bus = i_bus
         else :
             self.bus = SMBus(1)
