@@ -13,7 +13,7 @@ Changes:
 
 try :
     from smbus2 import SMBus
-except :
+except:
     from smbus import SMBus
 import math
 from time import sleep
